@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Opname PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{font-family:'Poppins', sans-serif}
+  body{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; padding:15px}
+.container{background:white; padding:30px; border-radius:20px; width:100%; max-width:1100px; box-shadow: 0 10px 30px rgba(0,0,0,0.2)}
+  h2{text-align:center; color:#667eea; font-weight:700}
+  input,button,select{width:100%; padding:12px; margin:8px 0; border:2px solid #eee; border-radius:10px; box-sizing:border-box; font-size:14px}
+  button{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; cursor:pointer; font-weight:600; border-radius:10px}
+.btn-edit{background: #f39c12; width:auto; padding:5px 12px; margin:2px}
+.btn-hapus{background: #e74c3c; width:auto; padding:5px 12px; margin:2px}
+.filter{display:flex; gap:10px}
+.total{margin-top:15px; font-weight:700; background:linear-gradient(135deg, #667eea, #764ba2); color:white; padding:15px; border-radius:15px; text-align:center}
+  table{width:100%; border-collapse:collapse; margin-top:15px}
+  th,td{padding:12px; text-align:center; border-bottom:1px solid #ddd}
+  th{background:#667eea; color:white}
+.badge{padding:5px 12px; border-radius:20px; color:white; font-size:12px; font-weight:600}
+.badge-RPC{background:#e67e22}.badge-RAW{background:#3498db}.badge-ORI{background:#2ecc71}
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <h2>📊 APLIKASI STOCK OPNAME RPC RAW ORI</h2>
+  <p style="text-align:center; font-weight:600; color:#667eea">Mode: ADMIN</p>
+
+  <h3 id="judulForm">Tambah Barang</h3>
+  <div id="formTambah">
+    <input type="hidden" id="editIndex" value="">
+    <select id="kategoriBarang"><option value="">📁 Pilih Kategori</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option></select>
+    <input type="text" id="namaBarang" placeholder="📦 Nama Barang">
+    <input type="number" id="stokSistem" placeholder="📈 Stok Sistem">
+    <button onclick="simpanBarang()">+ Tambah / Update</button>
+    <button id="btnBatal" onclick="batalEdit()" style="background:gray; display:none">Batal Edit</button>
+  </div>
+
+  <h3>Form Stock Opname</h3>
+  <div class="filter">
+    <input type="text" id="searchInput" onkeyup="tampilkan()" placeholder="🔍 Cari Nama Barang...">
+    <select id="filterKategori" onchange="tampilkan()"><option value="ALL">Semua</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option></select>
+  </div>
+  <input type="date" id="tanggalOpname">
+  <button onclick="simpanOpname()">💾 Simpan Opname</button>
+  <button onclick="exportExcel()">📤 Export Excel</button>
+
+  <table id="tabelBarang"></table>
+  <div class="total" id="totalStok"></div>
+</div>
+
+<script>
+let dataBarang = JSON.parse(localStorage.getItem('dataBarang')) || [];
+
+function tampilkan() {
+  let filter = document.getElementById('filterKategori').value;
+  let search = document.getElementById('searchInput').value.toLowerCase();
+  let tabel = document.getElementById('tabelBarang');
+  tabel.innerHTML = `<tr><th>No</th><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th><th>Aksi</th></tr>`;
+  let totalRPC=0, totalRAW=0, totalORI=0, totalJumlah=0; let no = 1;
+  dataBarang.forEach((item, i) => {
+    if(filter!== 'ALL' && item.kategori!== filter) return;
+    if(!item.nama.toLowerCase().includes(search)) return;
+    if(item.kategori==="RPC") totalRPC += Number(item.stokSistem) || 0;
+    if(item.kategori==="RAW") totalRAW += Number(item.stokSistem) || 0;
+    if(item.kategori==="ORI") totalORI += Number(item.stokSistem) || 0;
+    totalJumlah += Number(item.stokSistem) || 0;
+    let fisikVal = item.stokFisik || '';
+    let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0);
+    let btnAksi = `<button class="btn-edit" onclick="editBarang(${i})">✏️</button> <button class="btn-hapus" onclick="hapus(${i})">🗑️</button>`;
+    tabel.innerHTML += `<tr><td>${no++}</td><td><span class="badge badge-${item.kategori}">${item.kategori}</span></td><td>${item.nama}</td><td>${item.stokSistem}</td><td><input type="number" value="${fisikVal}" onchange="updateFisik(${i}, this.value)"></td><td>${selisih}</td><td>${btnAksi}</td></tr>`;
+  });
+  document.getElementById('totalStok').innerHTML = `📦 Total Item: ${totalJumlah} | 🟠 RPC: ${totalRPC} | 🔵 RAW: ${totalRAW} | 🟢 ORI: ${totalORI}`;
+  localStorage.setItem('dataBarang', JSON.stringify(dataBarang));
+}
+
+function simpanBarang() {
+  let kategori = document.getElementById('kategoriBarang').value;
+  let nama = document.getElementById('namaBarang').value.trim();
+  let stok = parseInt(document.getElementById('stokSistem').value);
+  let index = document.getElementById('editIndex').value;
+  if(kategori && nama &&!isNaN(stok)){
+    if(index === ""){ dataBarang.push({kategori, nama, stokSistem: stok, stokFisik: 0});
+    } else { dataBarang[index] = {kategori, nama, stokSistem: stok, stokFisik: dataBarang[index].stokFisik}; batalEdit(); }
+    document.getElementById('kategoriBarang').value = ''; document.getElementById('namaBarang').value = ''; document.getElementById('stokSistem').value = '';
+    tampilkan();
+  } else { alert('Lengkapi Kategori, Nama, dan Stok!'); }
+}
+function editBarang(i){ document.getElementById('editIndex').value = i; document.getElementById('kategoriBarang').value = dataBarang[i].kategori; document.getElementById('namaBarang').value = dataBarang[i].nama; document.getElementById('stokSistem').value = dataBarang[i].stokSistem; document.getElementById('judulForm').innerText = "Edit Barang"; document.getElementById('btnBatal').style.display = "block"; }
+function batalEdit(){ document.getElementById('editIndex').value = ""; document.getElementById('judulForm').innerText = "Tambah Barang"; document.getElementById('btnBatal').style.display = "none"; }
+function updateFisik(i, val){ dataBarang[i].stokFisik = parseInt(val) || 0; tampilkan(); }
+function hapus(i){ if(confirm('Hapus barang ini?')){ dataBarang.splice(i,1); tampilkan(); }}
+function simpanOpname(){ let tgl = document.getElementById('tanggalOpname').value; if(!tgl){ alert('Pilih tanggal!'); return; } localStorage.setItem('riwayat_'+tgl, JSON.stringify(dataBarang)); alert('Data opname tanggal '+tgl+' sudah disimpan!'); }
+function exportExcel(){ let csv = 'No,Kategori,Nama Barang,Stok Sistem,Stok Fisik,Selisih\n'; dataBarang.forEach((item,i)=>{ let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0); csv += `${i+1},${item.kategori},"${item.nama}",${item.stokSistem},${item.stokFisik || 0},${selisih}\n`; }); let blob = new Blob([csv], {type: 'text/csv'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'stock-opname.csv'; a.click(); }
+document.getElementById('tanggalOpname').valueAsDate = new Date();
+tampilkan();
+</script>
+</body>
+</html>
