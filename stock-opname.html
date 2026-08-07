@@ -1,40 +1,107 @@
-<!-- TOMBOL MENU -->
-<div style="margin:20px 0;">
-  <button onclick="showForm()" style="padding:10px 20px; background:blue; color:white; border:none; border-radius:5px;">+ Tambah Barang</button>
-  <button onclick="tampilkanData()" style="padding:10px 20px; background:green; color:white; border:none; border-radius:5px;">Lihat Data</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>APLIKASI STOCK OPNAME</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; background: #f0f8ff; margin:0; padding:10px; }
+   .container { background:white; padding:15px; border-radius:10px; max-width:800px; margin:auto; }
+    h2 { text-align:center; color:#333; }
+    input, select, button { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; box-sizing:border-box; }
+   .btn-hijau { background:#28a745; color:white; border:none; font-weight:bold; cursor:pointer; }
+   .btn-orange { background:#ffc107; color:black; border:none; cursor:pointer; }
+   .btn-merah { background:#dc3545; color:white; border:none; cursor:pointer; }
+   .btn-kuning { background:#ff9800; color:white; border:none; font-weight:bold; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
+    th { background:#007bff; color:white; padding:8px; }
+    td { border:1px solid #ddd; padding:8px; text-align:center; }
+    #formEdit { display:none; background:#fff3cd; padding:10px; border-radius:5px; margin:10px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>APLIKASI STOCK OPNAME RPC RAW ORI</h2>
+
+  <h3>1. Tambah Barang</h3>
+  <input type="hidden" id="editIndex">
+  <select id="kategori">
+    <option value="RPC">RPC</option>
+    <option value="RAW">RAW</option>
+    <option value="ORI">ORI</option>
+  </select>
+  <input type="text" id="namaBarang" placeholder="Nama Barang">
+  <input type="number" id="stokSistem" placeholder="Stok Sistem">
+  <button class="btn-hijau" onclick="simpanBarang()">+ Tambah / Update</button>
+
+  <div id="formEdit">
+    <b>Mode Edit:</b> Ubah data lalu klik "Tambah / Update"
+  </div>
+
+  <h3>2. Form Stock Opname</h3>
+  <label>Filter Kategori:</label>
+  <select id="filterKategori" onchange="tampilkanData()">
+    <option value="Semua">Semua Kategori</option>
+    <option value="RPC">RPC</option>
+    <option value="RAW">RAW</option>
+    <option value="ORI">ORI</option>
+  </select>
+  
+  <input type="date" id="tanggal" value="">
+
+  <button class="btn-hijau" onclick="tampilkanData()">Lihat Data</button>
+  <button class="btn-hijau" onclick="exportExcel()">Export Excel</button>
+  <button class="btn-kuning" onclick="alert('Fitur ganti password menyusul')">Ganti Password</button>
+
+  <div id="tabelData"></div>
 </div>
-
-<!-- FORM TAMBAH/EDIT BARANG -->
-<div id="formBarang" style="display:none; border:1px solid #ccc; padding:15px; border-radius:5px; margin-bottom:20px;">
-  <h3 id="judulForm">Form Tambah Barang</h3>
-
-  <input type="hidden" id="editIndex"> <!-- buat nyimpen index pas edit -->
-  <input type="text" id="namaBarang" placeholder="Nama Barang" style="width:90%; padding:8px; margin:5px 0;"><br>
-  <input type="number" id="jumlahBarang" placeholder="Jumlah" style="width:90%; padding:8px; margin:5px 0;"><br>
-
-  <button onclick="simpanBarang()" style="padding:10px 20px; background:green; color:white; border:none;">Simpan</button>
-  <button onclick="hideForm()" style="padding:10px 20px; background:red; color:white; border:none;">Batal</button>
-</div>
-
-<!-- TABEL DATA -->
-<div id="tabelData"></div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("stockData")) || [];
+let data = JSON.parse(localStorage.getItem("stockDataLengkap")) || [];
 
-// TAMPILKAN DATA + TOMBOL EDIT HAPUS
+// Set tanggal hari ini otomatis
+document.getElementById("tanggal").valueAsDate = new Date();
+
+function simpanBarang() {
+  let kategori = document.getElementById("kategori").value;
+  let nama = document.getElementById("namaBarang").value;
+  let stok = document.getElementById("stokSistem").value;
+  let index = document.getElementById("editIndex").value;
+  let tanggal = document.getElementById("tanggal").value;
+
+  if(nama == "" || stok == "") { alert("Isi Nama dan Stok dulu pak"); return; }
+
+  if(index === "") { // tambah baru
+    data.push({kategori, nama, stokSistem: stok, stokFisik: 0, tanggal});
+  } else { // update
+    data[index] = {kategori, nama, stokSistem: stok, stokFisik: data[index].stokFisik, tanggal};
+    document.getElementById("editIndex").value = "";
+    document.getElementById("formEdit").style.display = "none";
+  }
+
+  localStorage.setItem("stockDataLengkap", JSON.stringify(data));
+  alert("Data tersimpan");
+  kosongkanForm();
+  tampilkanData();
+}
+
 function tampilkanData() {
-  let html = "<h3>Data Stock</h3><table border=1 cellpadding=8 style='border-collapse:collapse; width:100%'>";
-  html += "<tr style='background:#eee'><th>No</th><th>Nama Barang</th><th>Jumlah</th><th>Aksi</th></tr>";
-
+  let filter = document.getElementById("filterKategori").value;
+  let html = "<table><tr><th>No</th><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th><th>Aksi</th></tr>";
+  
+  let no = 1;
   data.forEach((d, i) => {
+    if(filter!= "Semua" && d.kategori!= filter) return;
+    let selisih = d.stokFisik - d.stokSistem;
     html += `<tr>
-      <td>${i+1}</td>
+      <td>${no++}</td>
+      <td>${d.kategori}</td>
       <td>${d.nama}</td>
-      <td>${d.jumlah}</td>
+      <td>${d.stokSistem}</td>
+      <td><input type="number" value="${d.stokFisik}" style="width:60px" onchange="updateFisik(${i}, this.value)"></td>
+      <td>${selisih}</td>
       <td>
-        <button onclick="editData(${i})" style="background:orange; color:white; border:none; padding:5px 10px;">Edit</button>
-        <button onclick="hapusData(${i})" style="background:red; color:white; border:none; padding:5px 10px;">Hapus</button>
+        <button class="btn-orange" onclick="editData(${i})">Edit</button>
+        <button class="btn-merah" onclick="hapusData(${i})">Hapus</button>
       </td>
     </tr>`;
   });
@@ -42,56 +109,50 @@ function tampilkanData() {
   document.getElementById("tabelData").innerHTML = html;
 }
 
-// SIMPAN BARU / UPDATE EDIT
-function simpanBarang() {
-  let nama = document.getElementById("namaBarang").value;
-  let jumlah = document.getElementById("jumlahBarang").value;
-  let index = document.getElementById("editIndex").value;
-
-  if(nama == "" || jumlah == "") { alert("Isi semua dulu pak"); return; }
-
-  if(index === "") { // tambah baru
-    data.push({nama: nama, jumlah: jumlah});
-  } else { // update edit
-    data[index] = {nama: nama, jumlah: jumlah};
-    document.getElementById("editIndex").value = "";
-    document.getElementById("judulForm").innerText = "Form Tambah Barang";
-  }
-
-  localStorage.setItem("stockData", JSON.stringify(data));
-  alert("Data tersimpan");
-  hideForm();
+function updateFisik(i, val) {
+  data[i].stokFisik = parseInt(val) || 0;
+  localStorage.setItem("stockDataLengkap", JSON.stringify(data));
   tampilkanData();
-  document.getElementById("namaBarang").value = "";
-  document.getElementById("jumlahBarang").value = "";
 }
 
-// EDIT DATA
 function editData(i) {
   document.getElementById("editIndex").value = i;
+  document.getElementById("kategori").value = data[i].kategori;
   document.getElementById("namaBarang").value = data[i].nama;
-  document.getElementById("jumlahBarang").value = data[i].jumlah;
-  document.getElementById("judulForm").innerText = "Form Edit Barang";
-  showForm();
+  document.getElementById("stokSistem").value = data[i].stokSistem;
+  document.getElementById("formEdit").style.display = "block";
+  window.scrollTo(0,0);
 }
 
-// HAPUS DATA
 function hapusData(i) {
-  if(confirm("Yakin mau hapus " + data[i].nama + "?")) {
+  if(confirm("Yakin hapus " + data[i].nama + "?")) {
     data.splice(i, 1);
-    localStorage.setItem("stockData", JSON.stringify(data));
+    localStorage.setItem("stockDataLengkap", JSON.stringify(data));
     tampilkanData();
   }
 }
 
-function showForm() { document.getElementById("formBarang").style.display = "block"; }
-function hideForm() {
-  document.getElementById("formBarang").style.display = "none";
-  document.getElementById("editIndex").value = "";
+function kosongkanForm() {
   document.getElementById("namaBarang").value = "";
-  document.getElementById("jumlahBarang").value = "";
+  document.getElementById("stokSistem").value = "";
 }
 
-// tampilkan data pas buka halaman
+function exportExcel() {
+  let csv = "No,Kategori,Nama Barang,Stok Sistem,Stok Fisik,Selisih\n";
+  data.forEach((d,i)=>{
+    let selisih = d.stokFisik - d.stokSistem;
+    csv += `${i+1},${d.kategori},${d.nama},${d.stokSistem},${d.stokFisik},${selisih}\n`;
+  });
+  let blob = new Blob([csv], {type: 'text/csv'});
+  let url = window.URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.setAttribute("href", url);
+  a.setAttribute("download", "stock_opname.csv");
+  a.click();
+}
+
+// tampilkan data pas buka
 tampilkanData();
 </script>
+</body>
+</html>
