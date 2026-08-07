@@ -1,158 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>APLIKASI STOCK OPNAME</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial; background: #f0f8ff; margin:0; padding:10px; }
-   .container { background:white; padding:15px; border-radius:10px; max-width:800px; margin:auto; }
-    h2 { text-align:center; color:#333; }
-    input, select, button { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; box-sizing:border-box; }
-   .btn-hijau { background:#28a745; color:white; border:none; font-weight:bold; cursor:pointer; }
-   .btn-orange { background:#ffc107; color:black; border:none; cursor:pointer; }
-   .btn-merah { background:#dc3545; color:white; border:none; cursor:pointer; }
-   .btn-kuning { background:#ff9800; color:white; border:none; font-weight:bold; cursor:pointer; }
-    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
-    th { background:#007bff; color:white; padding:8px; }
-    td { border:1px solid #ddd; padding:8px; text-align:center; }
-    #formEdit { display:none; background:#fff3cd; padding:10px; border-radius:5px; margin:10px 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Stock Opname</title>
+<style>
+    body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+    .login-box h2 { text-align: center; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #218838; }
+    .error { color: red; text-align: center; margin-top: 10px; display: none; }
+    #app { display: none; }
+</style>
 </head>
 <body>
-<div class="container">
-  <h2>APLIKASI STOCK OPNAME RPC RAW ORI</h2>
 
-  <h3>1. Tambah Barang</h3>
-  <input type="hidden" id="editIndex">
-  <select id="kategori">
-    <option value="RPC">RPC</option>
-    <option value="RAW">RAW</option>
-    <option value="ORI">ORI</option>
-  </select>
-  <input type="text" id="namaBarang" placeholder="Nama Barang">
-  <input type="number" id="stokSistem" placeholder="Stok Sistem">
-  <button class="btn-hijau" onclick="simpanBarang()">+ Tambah / Update</button>
+<div class="login-box" id="loginPage">
+    <h2>LOGIN STOCK OPNAME</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Masuk</button>
+    <p class="error" id="errorMsg">Username atau Password salah!</p>
+</div>
 
-  <div id="formEdit">
-    <b>Mode Edit:</b> Ubah data lalu klik "Tambah / Update"
-  </div>
-
-  <h3>2. Form Stock Opname</h3>
-  <label>Filter Kategori:</label>
-  <select id="filterKategori" onchange="tampilkanData()">
-    <option value="Semua">Semua Kategori</option>
-    <option value="RPC">RPC</option>
-    <option value="RAW">RAW</option>
-    <option value="ORI">ORI</option>
-  </select>
-  
-  <input type="date" id="tanggal" value="">
-
-  <button class="btn-hijau" onclick="tampilkanData()">Lihat Data</button>
-  <button class="btn-hijau" onclick="exportExcel()">Export Excel</button>
-  <button class="btn-kuning" onclick="alert('Fitur ganti password menyusul')">Ganti Password</button>
-
-  <div id="tabelData"></div>
+<div id="app">
+    <h1 style="text-align:center">APLIKASI STOCK OPNAME RPC RAW ORI</h1>
+    <h3>1. Tambah Barang</h3>
+    <select id="kategori"><option>RPC</option><option>RAW</option><option>ORI</option></select><br><br>
+    <input type="text" id="namaBarang" placeholder="Nama Barang"><br><br>
+    <input type="number" id="stokSistem" placeholder="Stok Sistem"><br><br>
+    <button onclick="alert('Data disimpan!')">+ Tambah / Update</button>
+    
+    <h3>2. Form Stock Opname</h3>
+    <label>Filter Kategori:</label>
+    <select><option>Semua Kategori</option></select><br><br>
+    <input type="date" value="2026-08-07"><br><br>
+    <button>Lihat Data</button><br><br>
+    <button>Export Excel</button><br><br>
+    <button onclick="logout()" style="background:red">Logout</button>
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("stockDataLengkap")) || [];
-
-// Set tanggal hari ini otomatis
-document.getElementById("tanggal").valueAsDate = new Date();
-
-function simpanBarang() {
-  let kategori = document.getElementById("kategori").value;
-  let nama = document.getElementById("namaBarang").value;
-  let stok = document.getElementById("stokSistem").value;
-  let index = document.getElementById("editIndex").value;
-  let tanggal = document.getElementById("tanggal").value;
-
-  if(nama == "" || stok == "") { alert("Isi Nama dan Stok dulu pak"); return; }
-
-  if(index === "") { // tambah baru
-    data.push({kategori, nama, stokSistem: stok, stokFisik: 0, tanggal});
-  } else { // update
-    data[index] = {kategori, nama, stokSistem: stok, stokFisik: data[index].stokFisik, tanggal};
-    document.getElementById("editIndex").value = "";
-    document.getElementById("formEdit").style.display = "none";
-  }
-
-  localStorage.setItem("stockDataLengkap", JSON.stringify(data));
-  alert("Data tersimpan");
-  kosongkanForm();
-  tampilkanData();
+function login(){
+    let user = document.getElementById('username').value;
+    let pass = document.getElementById('password').value;
+    if(user === 'admin' && pass === '123'){
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+    } else {
+        document.getElementById('errorMsg').style.display = 'block';
+    }
 }
-
-function tampilkanData() {
-  let filter = document.getElementById("filterKategori").value;
-  let html = "<table><tr><th>No</th><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th><th>Aksi</th></tr>";
-  
-  let no = 1;
-  data.forEach((d, i) => {
-    if(filter!= "Semua" && d.kategori!= filter) return;
-    let selisih = d.stokFisik - d.stokSistem;
-    html += `<tr>
-      <td>${no++}</td>
-      <td>${d.kategori}</td>
-      <td>${d.nama}</td>
-      <td>${d.stokSistem}</td>
-      <td><input type="number" value="${d.stokFisik}" style="width:60px" onchange="updateFisik(${i}, this.value)"></td>
-      <td>${selisih}</td>
-      <td>
-        <button class="btn-orange" onclick="editData(${i})">Edit</button>
-        <button class="btn-merah" onclick="hapusData(${i})">Hapus</button>
-      </td>
-    </tr>`;
-  });
-  html += "</table>";
-  document.getElementById("tabelData").innerHTML = html;
+function logout(){
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
 }
-
-function updateFisik(i, val) {
-  data[i].stokFisik = parseInt(val) || 0;
-  localStorage.setItem("stockDataLengkap", JSON.stringify(data));
-  tampilkanData();
-}
-
-function editData(i) {
-  document.getElementById("editIndex").value = i;
-  document.getElementById("kategori").value = data[i].kategori;
-  document.getElementById("namaBarang").value = data[i].nama;
-  document.getElementById("stokSistem").value = data[i].stokSistem;
-  document.getElementById("formEdit").style.display = "block";
-  window.scrollTo(0,0);
-}
-
-function hapusData(i) {
-  if(confirm("Yakin hapus " + data[i].nama + "?")) {
-    data.splice(i, 1);
-    localStorage.setItem("stockDataLengkap", JSON.stringify(data));
-    tampilkanData();
-  }
-}
-
-function kosongkanForm() {
-  document.getElementById("namaBarang").value = "";
-  document.getElementById("stokSistem").value = "";
-}
-
-function exportExcel() {
-  let csv = "No,Kategori,Nama Barang,Stok Sistem,Stok Fisik,Selisih\n";
-  data.forEach((d,i)=>{
-    let selisih = d.stokFisik - d.stokSistem;
-    csv += `${i+1},${d.kategori},${d.nama},${d.stokSistem},${d.stokFisik},${selisih}\n`;
-  });
-  let blob = new Blob([csv], {type: 'text/csv'});
-  let url = window.URL.createObjectURL(blob);
-  let a = document.createElement("a");
-  a.setAttribute("href", url);
-  a.setAttribute("download", "stock_opname.csv");
-  a.click();
-}
-
-// tampilkan data pas buka
-tampilkanData();
 </script>
+
 </body>
 </html>
