@@ -13,12 +13,13 @@
   *{font-family:'Poppins', sans-serif}
   body{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; padding:15px;}
   .container{background:white; padding:25px; border-radius:20px; width:100%; max-width:600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-  h2{text-align:center; color:#667eea; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px}
+  h2{text-align:center; color:#667eea; font-weight:700}
   input,button,select{width:100%; padding:12px; margin:8px 0; border:2px solid #eee; border-radius:12px; box-sizing:border-box; font-size:14px; background:#f8f9fa}
   button{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; cursor:pointer; font-weight:600; border-radius:12px}
   .btn-green{background: #1abc9c} .btn-purple{background: #9b59b6} .btn-logout{background:#95a5a6; width:auto; padding:8px 15px; position:absolute; top:25px; right:25px}
   .hidden{display:none} .header{position:relative}
   .info-login{text-align:center; color:#667eea; font-weight:600; margin-bottom:15px}
+  table{width:100%; border-collapse:collapse; margin-top:15px} th,td{padding:10px; border-bottom:1px solid #eee; text-align:center}
 </style>
 </head>
 <body>
@@ -56,19 +57,20 @@
   <h3><b>📜 Riwayat Opname</b></h3>
   <div style="display:flex; gap:10px"><input type="date" id="tanggalRiwayat" style="flex:2"><button class="btn-green" onclick="loadRiwayat()" style="flex:1">📁 Lihat</button><button class="btn-purple" onclick="hapusRiwayat()" style="flex:1">Hapus</button></div>
   <div id="infoRiwayat"></div>
-  <table id="tabelBarang" style="width:100%; margin-top:15px"></table>
+  <table id="tabelBarang"></table>
 </div>
 
 <script>
-// GANTI DENGAN FIREBASE CONFIG PUNYA OM
+// FIREBASE CONFIG PUNYA OM - VERSI COMPAT
 const firebaseConfig = {
-  apiKey: "GANTI_DISINI",
-  authDomain: "GANTI_DISINI",
-  projectId: "GANTI_DISINI",
-  storageBucket: "GANTI_DISINI",
-  messagingSenderId: "GANTI_DISINI",
-  appId: "GANTI_DISINI"
+  apiKey: "AIzaSyC-_iqLOETBc0CA_i-nQXqiZnFAbbVy_aE",
+  authDomain: "stock-opname-om.firebaseapp.com",
+  projectId: "stock-opname-om",
+  storageBucket: "stock-opname-om.firebasestorage.app",
+  messagingSenderId: "419566416384",
+  appId: "1:419566416384:web:ab8089e297e29888e65ee5"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
