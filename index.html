@@ -1,93 +1,109 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock Opname Toko</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STOCK OPNAME PRO MAX</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *{font-family:'Poppins', sans-serif}
+  body{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; padding:15px;}
+  .container{background:white; padding:25px; border-radius:20px; width:100%; max-width:600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+  h2{text-align:center; color:#667eea; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px}
+  input,button,select{width:100%; padding:12px; margin:8px 0; border:2px solid #eee; border-radius:12px; box-sizing:border-box; font-size:14px; background:#f8f9fa}
+  button{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; cursor:pointer; font-weight:600; border-radius:12px}
+  .btn-green{background: #1abc9c} .btn-purple{background: #9b59b6} .btn-logout{background:#95a5a6; width:auto; padding:8px 15px; position:absolute; top:25px; right:25px}
+  .hidden{display:none} .header{position:relative}
+  .info-login{text-align:center; color:#667eea; font-weight:600; margin-bottom:15px}
+</style>
 </head>
-<body class="bg-gray-100">
+<body>
 
-  <div id="loginPage" class="flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-      <h1 class="text-2xl font-bold mb-6 text-center">🔐 Login Stock Opname</h1>
-      <input id="email" type="email" placeholder="Email" class="w-full p-2 border rounded mb-4">
-      <input id="password" type="password" placeholder="Password" class="w-full p-2 border rounded mb-4">
-      <button onclick="login()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Masuk</button>
-      <p id="error" class="text-red-500 text-sm mt-2"></p>
-    </div>
+<div class="container" id="loginPage">
+  <h2>📊 STOCK OPNAME PRO MAX</h2>
+  <input type="email" id="email" placeholder="📧 Email">
+  <input type="password" id="password" placeholder="🔑 Password">
+  <select id="role"><option value="staff">Staff</option><option value="admin">Admin</option><option value="viewer">Viewer</option></select>
+  <button onclick="register()">Daftar Akun Baru</button>
+  <button onclick="login()">Masuk</button>
+  <p id="loginError" style="color:red; text-align:center"></p>
+</div>
+
+<div class="container hidden" id="app">
+  <div class="header">
+    <h2>📊 STOCK OPNAME PRO MAX</h2>
+    <button class="btn-logout" onclick="logout()">Logout</button>
   </div>
+  <p class="info-login" id="userInfo"></p>
 
-  <div id="dashboard" class="hidden p-6">
-    <div class="flex justify-between mb-4">
-      <h1 class="text-2xl font-bold">Dashboard Stock Opname</h1>
-      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
-    </div>
-    <div class="bg-white p-4 rounded shadow">
-      <h2 class="font-bold mb-2">Tambah Barang</h2>
-      <input id="namaBarang" placeholder="Nama Barang" class="border p-2 rounded mr-2">
-      <input id="jumlah" type="number" placeholder="Jumlah" class="border p-2 rounded mr-2">
-      <button onclick="simpanData()" class="bg-green-500 text-white px-4 py-2 rounded">Simpan</button>
-    </div>
-    <div id="listBarang" class="mt-4"></div>
-  </div>
+  <h3><b>Tambah Barang</b></h3>
+  <select id="kategoriBarang"><option value="">📁 Pilih Kategori</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option></select>
+  <input type="text" id="namaBarang" placeholder="📦 Nama Barang">
+  <input type="number" id="stokSistem" placeholder="📈 Stok Sistem">
+  <button onclick="simpanBarang()">+ Tambah / Update</button>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <h3><b>Form Stock Opname</b></h3>
+  <div style="display:flex; gap:10px"><input type="text" id="searchInput" placeholder="🔍 Cari Nama Barang" style="flex:2"><select id="filterKategori" style="flex:1"><option value="ALL">Semua</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option></select></div>
+  <input type="date" id="tanggalOpname">
+  <button class="btn-green" onclick="simpanOpname()">💾 Simpan Opname</button>
+  <div style="display:flex; gap:10px"><button class="btn-green" onclick="exportExcel()">📦 Export Excel</button> <button class="btn-green" onclick="window.print()">🖨️ Print PDF</button></div>
+  <button class="btn-purple" onclick="gantiPassword()">🔑 Ganti Password</button>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC-_iqLOETBc0CA_i-nQXqiZnFAbbVy_aE",
-    authDomain: "stock-opname-om.firebaseapp.com",
-    projectId: "stock-opname-om",
-    storageBucket: "stock-opname-om.firebasestorage.app",
-    messagingSenderId: "419566416384",
-    appId: "1:419566416384:web:ab8089e297e29888e65ee5"
-  };
+  <h3><b>📜 Riwayat Opname</b></h3>
+  <div style="display:flex; gap:10px"><input type="date" id="tanggalRiwayat" style="flex:2"><button class="btn-green" onclick="loadRiwayat()" style="flex:1">📁 Lihat</button><button class="btn-purple" onclick="hapusRiwayat()" style="flex:1">Hapus</button></div>
+  <div id="infoRiwayat"></div>
+  <table id="tabelBarang" style="width:100%; margin-top:15px"></table>
+</div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore();
+<script>
+// GANTI DENGAN FIREBASE CONFIG PUNYA OM
+const firebaseConfig = {
+  apiKey: "GANTI_DISINI",
+  authDomain: "GANTI_DISINI",
+  projectId: "GANTI_DISINI",
+  storageBucket: "GANTI_DISINI",
+  messagingSenderId: "GANTI_DISINI",
+  appId: "GANTI_DISINI"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+let currentUser = null;
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
+function register(){
+  let email = document.getElementById('email').value;
+  let pass = document.getElementById('password').value;
+  let role = document.getElementById('role').value;
+  auth.createUserWithEmailAndPassword(email, pass).then(res => {
+    db.collection('users').doc(res.user.uid).set({email, role});
+    alert('Daftar berhasil! Silakan Login');
+  }).catch(e => alert(e.message));
+}
+function login(){
+  let email = document.getElementById('email').value;
+  let pass = document.getElementById('password').value;
+  auth.signInWithEmailAndPassword(email, pass).then(res => {
+    db.collection('users').doc(res.user.uid).get().then(doc => {
+      currentUser = {uid: res.user.uid, ...doc.data()};
       document.getElementById('loginPage').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-      loadData();
-    } else {
-      document.getElementById('loginPage').classList.remove('hidden');
-      document.getElementById('dashboard').classList.add('hidden');
-    }
-  });
-
-  window.login = () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    signInWithEmailAndPassword(auth, email, password)
-      .catch(error => document.getElementById('error').innerText = error.message);
-  }
-
-  window.logout = () => signOut(auth);
-
-  window.simpanData = async () => {
-    const nama = document.getElementById('namaBarang').value;
-    const jumlah = document.getElementById('jumlah').value;
-    await addDoc(collection(db, "stock"), {nama, jumlah, tanggal: new Date()});
-    alert('Data tersimpan!');
-    document.getElementById('namaBarang').value = '';
-    document.getElementById('jumlah').value = '';
-    loadData();
-  }
-
-  async function loadData() {
-    const querySnapshot = await getDocs(collection(db, "stock"));
-    let html = '';
-    querySnapshot.forEach((doc) => {
-      html += `<div class="bg-white p-2 mb-2 rounded">${doc.data().nama} - ${doc.data().jumlah}</div>`;
-    });
-    document.getElementById('listBarang').innerHTML = html;
-  }
+      document.getElementById('app').classList.remove('hidden');
+      document.getElementById('userInfo').innerText = `Login sebagai: ${currentUser.email.toUpperCase()} - Role: ${currentUser.role}`;
+      document.getElementById('tanggalOpname').valueAsDate = new Date();
+      document.getElementById('tanggalRiwayat').valueAsDate = new Date();
+    })
+  }).catch(e => document.getElementById('loginError').innerText = e.message);
+}
+function logout(){ auth.signOut(); location.reload(); }
+function simpanBarang(){ alert('Fitur simpan ke Firebase') }
+function simpanOpname(){ alert('Fitur simpan opname') }
+function exportExcel(){ alert('Fitur export excel') }
+function loadRiwayat(){ alert('Fitur load riwayat') }
+function hapusRiwayat(){ alert('Fitur hapus riwayat') }
+function gantiPassword(){ auth.sendPasswordResetEmail(currentUser.email); alert('Link ganti password dikirim ke email') }
 </script>
 </body>
 </html>
