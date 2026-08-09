@@ -77,65 +77,65 @@ let currentUser = {role: "admin"};
 let dataBarang = [];
 let tanggalAktif = "";
 
-// TEMPLATE BENSPOT 57 ITEM
+// TEMPLATE BENSPOT 57 ITEM + STOK AWAL DARI TABEL OM
 const templateBenspot = [
-{kategori:"RPC", nama:"117069 / Rpc gula pasir"},
-{kategori:"RPC", nama:"406854 / Rpc gula cair"},
-{kategori:"RPC", nama:"417857 / Rpc cofe bean"},
-{kategori:"RPC", nama:"414681 / Rpc ice cube"},
-{kategori:"RPC", nama:"417858 / Rpc fresh milk"},
-{kategori:"RPC", nama:"418141 / Rpc air mineral"},
-{kategori:"RPC", nama:"422305 / Rpc carnation"},
-{kategori:"RPC", nama:"414690 / Rpc monin salt crml"},
-{kategori:"RPC", nama:"416924 / Rpc palm sugr"},
-{kategori:"RPC", nama:"418663 / Rpc chese cake syrup/ml"},
-{kategori:"RPC", nama:"440698 / Rpc monin hazelnut"},
-{kategori:"RPC", nama:"445709 / Rpc monin lyche syrupml"},
-{kategori:"RPC", nama:"459935 / Rpc Strawberry cheese syrupml"},
-{kategori:"RPC", nama:"417583 / Rpc monin strawberyml"},
-{kategori:"RPC", nama:"414394 / Rpc Bobaking Syrup whtgrpml"},
-{kategori:"RPC", nama:"431940 / Rpc teh celup"},
-{kategori:"RPC", nama:"428000 / Rpc Roll plastic"},
-{kategori:"RPC", nama:"425881 / Rpc Max crimer"},
-{kategori:"RAW", nama:"430957 / Raw Choco hazelnut"},
-{kategori:"RAW", nama:"441823 / Raw Dark Choco"},
-{kategori:"RAW", nama:"430958 / Raw Choco vanilla"},
-{kategori:"RAW", nama:"430959 / Raw Green Tea late"},
-{kategori:"RAW", nama:"466178 / Raw creamer sac 15g"},
-{kategori:"RAW", nama:"466243 / Raw Jelly"},
-{kategori:"RAW", nama:"418604 / Raw Cup plastic PP beans 16oz"},
-{kategori:"RAW", nama:"418605 / Raw Cup hot beans 8oz"},
-{kategori:"RAW", nama:"466507 / Raw cup plstc injection set160oz"},
-{kategori:"RAW", nama:"459996 / Raw paperbowl beanspot set600ml"},
-{kategori:"RAW", nama:"Raw Roll plastic"},
-{kategori:"RAW", nama:"459511 / Raw jblosom sac 35g"},
-{kategori:"RAW", nama:"466921 / Raw pwd matcha sac 45g"},
-{kategori:"ORI", nama:"443362 / Ori Gula pasir SAC 100x8g"},
-{kategori:"ORI", nama:"437890 / Ori Gula cair sac 100x20ml"},
-{kategori:"ORI", nama:"416480 / Ori ice cube"},
-{kategori:"ORI", nama:"414393 / Ori Bobaking syrup 750ml"},
-{kategori:"ORI", nama:"465631 / Ori Gula aren 1,3L"},
-{kategori:"ORI", nama:"414657 / Ori Monin syrup Saltd Caramel"},
-{kategori:"ORI", nama:"Ori Monin Lyce syrup"},
-{kategori:"ORI", nama:"Ori Monin Hazelnut syrup"},
-{kategori:"ORI", nama:"Ori Monin Cheesecake syrup"},
-{kategori:"ORI", nama:"Ori Str crm chs syrup"},
-{kategori:"ORI", nama:"417574 / Ori monin str 700ml"},
-{kategori:"ORI", nama:"460557 / Ori Deli fru Coco mangi1L"},
-{kategori:"ORI", nama:"414393 / Ori Bobaking Syrup whtgrpml"},
-{kategori:"ORI", nama:"446348 / Ori Krimer bag 1kg"},
-{kategori:"ORI", nama:"459875 / Ori pistachio"},
-{kategori:"ORI", nama:"437891 / Ori Machiato pwdr 30g"},
-{kategori:"ORI", nama:"465831 / Ori Pwd Thai tea 40g"},
-{kategori:"ORI", nama:"423551 / Ori Frape base 500g"},
-{kategori:"ORI", nama:"459817 / Ori teh sosro 30x26"},
-{kategori:"ORI", nama:"466178 / Ori Krimer 40g"},
-{kategori:"ORI", nama:"Ori coffe beansp"},
-{kategori:"LAIN", nama:"10069 / Diamond Uht 1l"},
-{kategori:"LAIN", nama:"211825 / Greenfield Uht 1l"},
-{kategori:"LAIN", nama:"434860 / Ori Omela"},
-{kategori:"LAIN", nama:"400866 / Carnation 360g"},
-{kategori:"LAIN", nama:"7625 / Max crimer 500g"}
+{no:1, kategori:"RPC", nama:"117069 / Rpc gula pasir", sistem:955, fisik:146},
+{no:2, kategori:"RPC", nama:"406854 / Rpc gula cair", sistem:48, fisik:58},
+{no:3, kategori:"RPC", nama:"417857 / Rpc cofe bean", sistem:530, fisik:530},
+{no:4, kategori:"RPC", nama:"414681 / Rpc ice cube", sistem:0, fisik:0},
+{no:5, kategori:"RPC", nama:"417858 / Rpc fresh milk", sistem:10220, fisik:14000},
+{no:6, kategori:"RPC", nama:"418141 / Rpc air mineral", sistem:0, fisik:0},
+{no:7, kategori:"RPC", nama:"422305 / Rpc carnation", sistem:235, fisik:235},
+{no:8, kategori:"RPC", nama:"414690 / Rpc monin salt crml", sistem:175, fisik:148},
+{no:9, kategori:"RPC", nama:"416924 / Rpc palm sugr", sistem:16385, fisik:19400},
+{no:10, kategori:"RPC", nama:"418663 / Rpc chese cake syrup/ml", sistem:545, fisik:506},
+{no:11, kategori:"RPC", nama:"440698 / Rpc monin hazelnut", sistem:490, fisik:152},
+{no:12, kategori:"RPC", nama:"445709 / Rpc monin lyche syrupml", sistem:710, fisik:665},
+{no:13, kategori:"RPC", nama:"459935 / Rpc Strawberry cheese syrupml", sistem:1600, fisik:1600},
+{no:14, kategori:"RPC", nama:"417583 / Rpc monin strawberyml", sistem:700, fisik:700},
+{no:15, kategori:"RPC", nama:"414394 / Rpc Bobaking Syrup whtgrpml", sistem:730, fisik:730},
+{no:16, kategori:"RPC", nama:"431940 / Rpc teh celup", sistem:57, fisik:57},
+{no:17, kategori:"RPC", nama:"428000 / Rpc Roll plastic", sistem:1067, fisik:0},
+{no:18, kategori:"RPC", nama:"425881 / Rpc Max crimer", sistem:220, fisik:230},
+{no:19, kategori:"RAW", nama:"430957 / Raw Choco hazelnut", sistem:18, fisik:28},
+{no:20, kategori:"RAW", nama:"441823 / Raw Dark Choco", sistem:18, fisik:18},
+{no:21, kategori:"RAW", nama:"430958 / Raw Choco vanilla", sistem:7, fisik:17},
+{no:22, kategori:"RAW", nama:"430959 / Raw Green Tea late", sistem:11, fisik:11},
+{no:23, kategori:"RAW", nama:"466178 / Raw creamer sac 15g", sistem:19, fisik:25},
+{no:24, kategori:"RAW", nama:"466243 / Raw Jelly", sistem:15, fisik:15},
+{no:25, kategori:"RAW", nama:"418604 / Raw Cup plastic PP beans 16oz", sistem:524, fisik:0},
+{no:26, kategori:"RAW", nama:"418605 / Raw Cup hot beans 8oz", sistem:148, fisik:148},
+{no:27, kategori:"RAW", nama:"466507 / Raw cup plstc injection set160oz", sistem:79, fisik:80},
+{no:28, kategori:"RAW", nama:"459996 / Raw paperbowl beanspot set600ml", sistem:0, fisik:0},
+{no:29, kategori:"RAW", nama:"Raw Roll plastic", sistem:5, fisik:5},
+{no:30, kategori:"RAW", nama:"459511 / Raw jblosom sac 35g", sistem:0, fisik:0},
+{no:31, kategori:"RAW", nama:"466921 / Raw pwd matcha sac 45g", sistem:19, fisik:18},
+{no:32, kategori:"ORI", nama:"443362 / Ori Gula pasir SAC 100x8g", sistem:0, fisik:0},
+{no:33, kategori:"ORI", nama:"437890 / Ori Gula cair sac 100x20ml", sistem:1, fisik:1},
+{no:34, kategori:"ORI", nama:"416480 / Ori ice cube", sistem:4, fisik:4},
+{no:35, kategori:"ORI", nama:"414393 / Ori Bobaking syrup 750ml", sistem:0, fisik:0},
+{no:36, kategori:"ORI", nama:"465631 / Ori Gula aren 1,3L", sistem:15, fisik:15},
+{no:37, kategori:"ORI", nama:"414657 / Ori Monin syrup Saltd Caramel", sistem:12, fisik:11},
+{no:38, kategori:"ORI", nama:"445708 / Ori Monin Lyce syrup", sistem:1, fisik:1},
+{no:39, kategori:"ORI", nama:"421996 / Ori Monin Cheesecake syrup 700ml", sistem:4, fisik:4},
+{no:40, kategori:"ORI", nama:"459931 / Ori Str crm chs syrup800ml", sistem:2, fisik:2},
+{no:41, kategori:"ORI", nama:"417574 / Ori monin str 700ml", sistem:8, fisik:8},
+{no:42, kategori:"ORI", nama:"460557 / Ori Deli fru Coco mangi1L", sistem:1, fisik:1},
+{no:43, kategori:"ORI", nama:"414393 / Ori Bobaking Syrup whtgrpml", sistem:1, fisik:1},
+{no:44, kategori:"ORI", nama:"446348 / Ori Krimer bag 1kg", sistem:0, fisik:0},
+{no:45, kategori:"ORI", nama:"459875 / Ori pistachio", sistem:18, fisik:18},
+{no:46, kategori:"ORI", nama:"437891 / Ori Machiato pwdr 30g", sistem:21, fisik:20},
+{no:47, kategori:"ORI", nama:"465831 / Ori Pwd Thai tea 40g", sistem:11, fisik:11},
+{no:48, kategori:"ORI", nama:"423551 / Ori Frape base 500g", sistem:2, fisik:2},
+{no:49, kategori:"ORI", nama:"459817 / Ori teh sosro 30x26", sistem:0, fisik:0},
+{no:50, kategori:"ORI", nama:"466178 / Ori Krimer 15g", sistem:19, fisik:19},
+{no:51, kategori:"ORI", nama:"Ori coffe beansp", sistem:27, fisik:29},
+{no:52, kategori:"LAIN", nama:"10069 / Diamond Uht 1l", sistem:0, fisik:0},
+{no:53, kategori:"LAIN", nama:"211825 / Greenfield Uht 1l", sistem:0, fisik:0},
+{no:54, kategori:"LAIN", nama:"434860 / Ori Omela", sistem:0, fisik:0},
+{no:55, kategori:"LAIN", nama:"400866 / Carnation 360g", sistem:0, fisik:0},
+{no:56, kategori:"LAIN", nama:"7625 / Max crimer 500g", sistem:0, fisik:0},
+{no:57, kategori:"RAW", nama:"461504 / Raw creamer sac 20g", sistem:20, fisik:20}
 ];
 
 function simpanData(){ sessionStorage.setItem('dataBarang', JSON.stringify(dataBarang)); }
@@ -150,8 +150,8 @@ function resetData(){
 
 function loadTemplate(){
   if(confirm('Load 57 item template Benspot? Data lama akan tertimpa')){
-    dataBarang = templateBenspot.map(item => ({...item, stokSistem: 0, stokFisik: 0}));
-    tampilkan(); tampilkanDaftarRiwayat(); alert('Template Benspot berhasil dimuat!');
+    dataBarang = templateBenspot.map(item => ({...item, stokSistem: item.sistem, stokFisik: item.fisik}));
+    tampilkan(); tampilkanDaftarRiwayat(); alert('Template Benspot 57 item berhasil dimuat!');
   }
 }
 
@@ -167,7 +167,7 @@ function tampilkan() {
     total += Number(item.stokSistem) || 0;
     let fisikVal = item.stokFisik || '';
     let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0);
-    tabel.innerHTML += `<tr><td>${no++}</td><td><span class="badge badge-${item.kategori}">${item.kategori}</span></td><td style="text-align:left">${item.nama}</td><td><input type="number" value="${item.stokSistem}" onchange="updateSistem(${i}, this.value)"></td><td><input type="number" value="${fisikVal}" onchange="updateFisik(${i}, this.value)"></td><td>${selisih}</td><td><button class="btn-edit" onclick="editBarang(${i})">✏️</button> <button class="btn-hapus" onclick="hapus(${i})">🗑️</button></td></tr>`;
+    tabel.innerHTML += `<tr><td>${item.no}</td><td><span class="badge badge-${item.kategori}">${item.kategori}</span></td><td style="text-align:left">${item.nama}</td><td><input type="number" value="${item.stokSistem}" onchange="updateSistem(${i}, this.value)"></td><td><input type="number" value="${fisikVal}" onchange="updateFisik(${i}, this.value)"></td><td>${selisih}</td><td><button class="btn-edit" onclick="editBarang(${i})">✏️</button> <button class="btn-hapus" onclick="hapus(${i})">🗑️</button></td></tr>`;
   });
   document.getElementById('totalStok').innerHTML = `📦 Total Item: ${dataBarang.length} | Total Stok Sistem: ${total}`;
   simpanData();
@@ -234,7 +234,7 @@ function exportExcel(){
   let csv = 'No,Kategori,Nama Barang,Stok Sistem,Stok Fisik,Selisih\n';
   dataBarang.forEach((item,i)=>{
     let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0);
-    csv += `${i+1},${item.kategori},"${item.nama}",${item.stokSistem},${item.stokFisik || 0},${selisih}\n`;
+    csv += `${item.no},${item.kategori},"${item.nama}",${item.stokSistem},${item.stokFisik || 0},${selisih}\n`;
   });
   let blob = new Blob([csv], {type: 'text/csv'});
   let a = document.createElement('a');
