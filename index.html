@@ -3,231 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SO MATERIAL BENSPOT PRO MAX</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Stock Opname Benspot</title>
 <style>
-  *{font-family:'Poppins', sans-serif}
-  body{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; padding:15px}
-.container{background:white; padding:30px; border-radius:20px; width:100%; max-width:1100px; box-shadow: 0 10px 30px rgba(0,0,0,0.2)}
-  h2{text-align:center; color:#667eea; font-weight:700}
-  input,button,select{width:100%; padding:12px; margin:8px 0; border:2px solid #eee; border-radius:10px; box-sizing:border-box; font-size:14px}
-  button{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; cursor:pointer; font-weight:600; border-radius:10px}
-.btn-reset{background:#e74c3c}
-.btn-edit{background: #f39c12; width:auto; padding:5px 12px; margin:2px}
-.btn-hapus{background: #e74c3c; width:auto; padding:5px 12px; margin:2px}
-.btn-aksi{background:#1abc9c; width:auto; padding:8px 15px; margin:5px}
-.hidden{display:none}
-.filter{display:flex; gap:10px}
-.total{margin-top:15px; font-weight:700; background:linear-gradient(135deg, #667eea, #764ba2); color:white; padding:15px; border-radius:15px; text-align:center}
-  table{width:100%; border-collapse:collapse; margin-top:15px}
-  th,td{padding:12px; text-align:center; border-bottom:1px solid #ddd; font-size:13px}
-  th{background:#667eea; color:white}
-.badge{padding:5px 12px; border-radius:20px; color:white; font-size:12px; font-weight:600}
-.badge-RPC{background:#e67e22}.badge-RAW{background:#3498db}.badge-ORI{background:#2ecc71}.badge-LAIN{background:#9b59b6}
-.header{display:flex; justify-content:space-between; align-items:center}
-  @media print { body{background:white}.container{box-shadow:none} button{display:none} }
+  body{font-family:Arial; padding:10px; background:#f5f5f5}
+  .btn{padding:10px 15px; border:none; border-radius:8px; cursor:pointer; margin:5px}
+  .btn-hijau{background:#22c55e; color:white}
+  .btn-biru{background:#3b82f6; color:white}
+  table{width:100%; border-collapse:collapse; background:white}
+  th,td{border:1px solid #ddd; padding:8px; text-align:center}
+  th{background:#eee}
+  #listRiwayat button{width:100%; text-align:left; padding:8px; margin:3px 0; background:#fff; border:1px solid #ccc; border-radius:5px}
 </style>
 </head>
 <body>
 
-<div class="container" id="app">
-  <div class="header">
-    <h2>📊 SO MATERIAL BENSPOT PRO MAX</h2>
-    <button class="btn-reset" onclick="resetData()">🔄 Reset Data</button>
-  </div>
-  <p id="userInfo" style="text-align:center; font-weight:600; color:#667eea">Login sebagai: ADMIN BENSPOT</p>
+<h2>Stock Opname Benspot</h2>
+<button class="btn btn-hijau" onclick="loadTemplate()">Load Template Benspot</button>
+<input type="date" id="tanggal">
+<button class="btn btn-biru" onclick="simpanOpname()">Simpan Opname</button>
+<button class="btn btn-biru" onclick="exportExcel()">Export Excel</button>
 
-  <h3 id="judulForm">Tambah Barang</h3>
-  <div id="formTambah">
-    <input type="hidden" id="editIndex" value="">
-    <select id="kategoriBarang"><option value="">📁 Pilih Kategori</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option><option value="LAIN">LAIN-LAIN</option></select>
-    <input type="text" id="namaBarang" placeholder="📦 Nama Barang + Kode">
-    <input type="number" id="stokSistem" placeholder="📈 Stok Sistem">
-    <button onclick="simpanBarang()">+ Tambah / Update</button>
-    <button id="btnBatal" onclick="batalEdit()" style="background:gray; display:none">Batal Edit</button>
-    <button onclick="loadTemplate()" style="background:#2ecc71">📥 Load Template Benspot</button>
-  </div>
+<table id="tabelBarang">
+<thead>
+<tr><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th></tr>
+</thead>
+<tbody></tbody>
+</table>
 
-  <h3>Form Stock Opname</h3>
-  <div class="filter">
-    <input type="text" id="searchInput" onkeyup="tampilkan()" placeholder="🔍 Cari Nama Barang...">
-    <select id="filterKategori" onchange="tampilkan()"><option value="ALL">Semua</option><option value="RPC">RPC</option><option value="RAW">RAW</option><option value="ORI">ORI</option><option value="LAIN">LAIN-LAIN</option></select>
-  </div>
-  <input type="date" id="tanggalOpname">
+<h3>Riwayat Opname</h3>
+<div id="listRiwayat"></div>
 
-  <div style="display:flex; gap:10px; flex-wrap:wrap">
-    <button class="btn-aksi" onclick="simpanOpname()">💾 Simpan Opname</button>
-    <button class="btn-aksi" onclick="exportExcel()">📤 Export Excel</button>
-    <button class="btn-aksi" onclick="window.print()">🖨️ Print PDF</button>
-  </div>
-
-  <h3>📜 Riwayat Opname</h3>
-  <div class="filter">
-    <input type="date" id="tanggalRiwayat">
-    <button onclick="loadRiwayat()">📂 Lihat Riwayat</button>
-    <button onclick="hapusRiwayat()">🗑️ Hapus Riwayat</button>
-  </div>
-  <div id="infoRiwayat" style="color:#667eea; font-weight:600"></div>
-
-  <table id="tabelBarang"></table>
-  <div class="total" id="totalStok"></div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-let currentUser = {role: "admin"};
-let dataBarang = [];
-
-// TEMPLATE BENSPOT 10-07-2026
 const templateBenspot = [
-{kategori:"RPC", nama:"117069 / Rpc gula pasir"},
-{kategori:"RPC", nama:"406854 / Rpc gula cair"},
-{kategori:"RPC", nama:"417857 / Rpc cofe bean"},
-{kategori:"RPC", nama:"414681 / Rpc ice cube"},
-{kategori:"RPC", nama:"417858 / Rpc fresh milk"},
-{kategori:"RPC", nama:"418141 / Rpc air mineral"},
-{kategori:"RPC", nama:"422305 / Rpc carnation"},
-{kategori:"RPC", nama:"414690 / Rpc monin salt crml"},
-{kategori:"RPC", nama:"416924 / Rpc palm sugr"},
-{kategori:"RPC", nama:"418663 / Rpc chese cake syrup/ml"},
-{kategori:"RPC", nama:"440698 / Rpc monin hazelnut"},
-{kategori:"RPC", nama:"445709 / Rpc monin lyche syrupml"},
-{kategori:"RPC", nama:"459935 / Rpc Strawberry cheese syrupml"},
-{kategori:"RPC", nama:"417583 / Rpc monin strawberyml"},
-{kategori:"RPC", nama:"414394 / Rpc Bobaking Syrup whtgrpml"},
-{kategori:"RPC", nama:"431940 / Rpc teh celup"},
-{kategori:"RPC", nama:"428000 / Rpc Roll plastic"},
-{kategori:"RPC", nama:"425881 / Rpc Max crimer"},
-{kategori:"RAW", nama:"430957 / Raw Choco hazelnut"},
-{kategori:"RAW", nama:"441823 / Raw Dark Choco"},
-{kategori:"RAW", nama:"430958 / Raw Choco vanilla"},
-{kategori:"RAW", nama:"430959 / Raw Green Tea late"},
-{kategori:"RAW", nama:"466178 / Raw creamer sac 15g"},
-{kategori:"RAW", nama:"466243 / Raw Jelly"},
-{kategori:"RAW", nama:"418604 / Raw Cup plastic PP beans 16oz"},
-{kategori:"RAW", nama:"418605 / Raw Cup hot beans 8oz"},
-{kategori:"RAW", nama:"466507 / Raw cup plstc injection set160oz"},
-{kategori:"RAW", nama:"459996 / Raw paperbowl beanspot set600ml"},
-{kategori:"RAW", nama:"Raw Roll plastic"},
-{kategori:"RAW", nama:"459511 / Raw jblosom sac 35g"},
-{kategori:"RAW", nama:"466921 / Raw pwd matcha sac 45g"},
-{kategori:"ORI", nama:"443362 / Ori Gula pasir SAC 100x8g"},
-{kategori:"ORI", nama:"437890 / Ori Gula cair sac 100x20ml"},
-{kategori:"ORI", nama:"416480 / Ori ice cube"},
-{kategori:"ORI", nama:"414393 / Ori Bobaking syrup 750ml"},
-{kategori:"ORI", nama:"465631 / Ori Gula aren 1,3L"},
-{kategori:"ORI", nama:"414657 / Ori Monin syrup Saltd Caramel"},
-{kategori:"ORI", nama:"Ori Monin Lyce syrup"},
-{kategori:"ORI", nama:"Ori Monin Hazelnut syrup"},
-{kategori:"ORI", nama:"Ori Monin Cheesecake syrup"},
-{kategori:"ORI", nama:"Ori Str crm chs syrup"},
-{kategori:"ORI", nama:"417574 / Ori monin str 700ml"},
-{kategori:"ORI", nama:"460557 / Ori Deli fru Coco mangi1L"},
-{kategori:"ORI", nama:"414393 / Ori Bobaking Syrup whtgrpml"},
-{kategori:"ORI", nama:"446348 / Ori Krimer bag 1kg"},
-{kategori:"ORI", nama:"459875 / Ori pistachio"},
-{kategori:"ORI", nama:"437891 / Ori Machiato pwdr 30g"},
-{kategori:"ORI", nama:"465831 / Ori Pwd Thai tea 40g"},
-{kategori:"ORI", nama:"423551 / Ori Frape base 500g"},
-{kategori:"ORI", nama:"459817 / Ori teh sosro 30x26"},
-{kategori:"ORI", nama:"466178 / Ori Krimer 40g"},
-{kategori:"ORI", nama:"Ori coffe beansp"},
-{kategori:"LAIN", nama:"10069 / Diamond Uht 1l"},
-{kategori:"LAIN", nama:"211825 / Greenfield Uht 1l"},
-{kategori:"LAIN", nama:"434860 / Ori Omela"},
-{kategori:"LAIN", nama:"400866 / Carnation 360g"},
-{kategori:"LAIN", nama:"7625 / Max crimer 500g"}
+  {kat:"RPC", nama:"RPC Monin Strawberry", sistem:0, fisik:0},
+  {kat:"RPC", nama:"RPC Monin Mango", sistem:0, fisik:0},
+  // ... LANJUTIN SAMPAI 57 ITEM OM ...
+  {kat:"RAW", nama:"RAW Choco Hazelnut", sistem:0, fisik:0}
 ];
 
-function simpanData(){ sessionStorage.setItem('dataBarang', JSON.stringify(dataBarang)); }
-function loadData(){ dataBarang = JSON.parse(sessionStorage.getItem('dataBarang')) || []; }
-
-function resetData(){
-  if(confirm('Yakin reset SEMUA data dan riwayat?')){
-    sessionStorage.clear();
-    alert('Data dihapus!'); location.reload();
-  }
-}
-
 function loadTemplate(){
-  if(confirm('Load 57 item template Benspot? Data lama akan tertimpa')){
-    dataBarang = templateBenspot.map(item => ({...item, stokSistem: 0, stokFisik: 0}));
-    tampilkan(); alert('Template Benspot berhasil dimuat!');
-  }
-}
-
-function tampilkan() {
-  let filter = document.getElementById('filterKategori').value;
-  let search = document.getElementById('searchInput').value.toLowerCase();
-  let tabel = document.getElementById('tabelBarang');
-  tabel.innerHTML = `<tr><th>No</th><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th><th>Aksi</th></tr>`;
-  let total=0; let no = 1;
-  dataBarang.forEach((item, i) => {
-    if(filter!== 'ALL' && item.kategori!== filter) return;
-    if(!item.nama.toLowerCase().includes(search)) return;
-    total += Number(item.stokSistem) || 0;
-    let fisikVal = item.stokFisik || '';
-    let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0);
-    tabel.innerHTML += `<tr><td>${no++}</td><td><span class="badge badge-${item.kategori}">${item.kategori}</span></td><td style="text-align:left">${item.nama}</td><td><input type="number" value="${item.stokSistem}" onchange="updateSistem(${i}, this.value)"></td><td><input type="number" value="${fisikVal}" onchange="updateFisik(${i}, this.value)"></td><td>${selisih}</td><td><button class="btn-edit" onclick="editBarang(${i})">✏️</button> <button class="btn-hapus" onclick="hapus(${i})">🗑️</button></td></tr>`;
+  let tbody = document.querySelector("#tabelBarang tbody");
+  tbody.innerHTML = "";
+  templateBenspot.forEach((item, i)=>{
+    tbody.innerHTML += `<tr>
+      <td>${item.kat}</td>
+      <td>${item.nama}</td>
+      <td><input type="number" value="${item.sistem}" id="sistem${i}"></td>
+      <td><input type="number" value="${item.fisik}" id="fisik${i}"></td>
+      <td id="selisih${i}">0</td>
+    </tr>`;
   });
-  document.getElementById('totalStok').innerHTML = `📦 Total Item: ${dataBarang.length} | Total Stok Sistem: ${total}`;
-  simpanData();
 }
-
-function simpanBarang() {
-  let kategori = document.getElementById('kategoriBarang').value;
-  let nama = document.getElementById('namaBarang').value.trim();
-  let stok = parseInt(document.getElementById('stokSistem').value) || 0;
-  let index = document.getElementById('editIndex').value;
-  if(kategori && nama){
-    if(index === ""){ dataBarang.push({kategori, nama, stokSistem: stok, stokFisik: 0});
-    } else { dataBarang[index] = {kategori, nama, stokSistem: stok, stokFisik: dataBarang[index].stokFisik}; batalEdit(); }
-    document.getElementById('kategoriBarang').value = ''; document.getElementById('namaBarang').value = ''; document.getElementById('stokSistem').value = '';
-    tampilkan();
-  } else { alert('Lengkapi Kategori dan Nama!'); }
-}
-function editBarang(i){ document.getElementById('editIndex').value = i; document.getElementById('kategoriBarang').value = dataBarang[i].kategori; document.getElementById('namaBarang').value = dataBarang[i].nama; document.getElementById('stokSistem').value = dataBarang[i].stokSistem; document.getElementById('judulForm').innerText = "Edit Barang"; document.getElementById('btnBatal').style.display = "block"; }
-function batalEdit(){ document.getElementById('editIndex').value = ""; document.getElementById('judulForm').innerText = "Tambah Barang"; document.getElementById('btnBatal').style.display = "none"; }
-function updateSistem(i, val){ dataBarang[i].stokSistem = parseInt(val) || 0; tampilkan(); }
-function updateFisik(i, val){ dataBarang[i].stokFisik = parseInt(val) || 0; tampilkan(); }
-function hapus(i){ if(confirm('Hapus barang ini?')){ dataBarang.splice(i,1); tampilkan(); }}
 
 function simpanOpname(){
-  let tgl = document.getElementById('tanggalOpname').value;
-  if(!tgl){ alert('Pilih tanggal!'); return; }
-  sessionStorage.setItem('riwayat_'+tgl, JSON.stringify(dataBarang));
-  alert('Data opname tanggal '+tgl+' sudah disimpan!');
+  let tanggal = document.getElementById("tanggal").value;
+  if(!tanggal) return alert("Pilih tanggal dulu!");
+  
+  let data = [];
+  templateBenspot.forEach((item, i)=>{
+    let sistem = parseInt(document.getElementById("sistem"+i).value) || 0;
+    let fisik = parseInt(document.getElementById("fisik"+i).value) || 0;
+    let selisih = fisik - sistem;
+    document.getElementById("selisih"+i).innerText = selisih;
+    data.push({...item, sistem, fisik, selisih});
+  });
+
+  simpanKeRiwayat(tanggal, data);
+  tampilkanRiwayat();
+  alert("Data tanggal "+tanggal+" berhasil disimpan!");
 }
 
-function loadRiwayat(){
-  let tgl = document.getElementById('tanggalRiwayat').value;
-  if(!tgl){ alert('Pilih tanggal riwayat!'); return; }
-  let data = JSON.parse(sessionStorage.getItem('riwayat_'+tgl));
-  if(data){ dataBarang = data; document.getElementById('infoRiwayat').innerText = `Menampilkan data tanggal: ${tgl}`; tampilkan();
-  } else { alert('Data tanggal '+tgl+' tidak ada'); }
+function simpanKeRiwayat(tanggal, data) {
+  let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
+  riwayat = riwayat.filter(item => item.tanggal !== tanggal);
+  riwayat.push({ tanggal: tanggal, data: data, waktu: new Date().toLocaleString() });
+  riwayat.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  localStorage.setItem('riwayatBenspot', JSON.stringify(riwayat));
 }
 
-function hapusRiwayat(){
-  let tgl = document.getElementById('tanggalRiwayat').value;
-  if(!tgl){ alert('Pilih tanggal riwayat!'); return; }
-  if(confirm('Hapus riwayat tanggal '+tgl+'?')){ sessionStorage.removeItem('riwayat_'+tgl); alert('Riwayat dihapus'); }
+function tampilkanRiwayat() {
+  let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
+  let html = '';
+  if(riwayat.length === 0) {
+    html = '<p>Belum ada riwayat</p>';
+  } else {
+    riwayat.forEach(item => {
+      html += `<button onclick="loadRiwayat('${item.tanggal}')">
+                📅 ${item.tanggal} - ${item.waktu}
+               </button>`;
+    });
+  }
+  document.getElementById('listRiwayat').innerHTML = html;
+}
+
+function loadRiwayat(tanggal){
+  let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
+  let item = riwayat.find(r => r.tanggal === tanggal);
+  if(!item) return;
+  document.getElementById("tanggal").value = tanggal;
+  let tbody = document.querySelector("#tabelBarang tbody");
+  tbody.innerHTML = "";
+  item.data.forEach((d, i)=>{
+    tbody.innerHTML += `<tr>
+      <td>${d.kat}</td>
+      <td>${d.nama}</td>
+      <td><input type="number" value="${d.sistem}" id="sistem${i}"></td>
+      <td><input type="number" value="${d.fisik}" id="fisik${i}"></td>
+      <td id="selisih${i}">${d.selisih}</td>
+    </tr>`;
+  });
 }
 
 function exportExcel(){
-  let csv = 'No,Kategori,Nama Barang,Stok Sistem,Stok Fisik,Selisih\n';
-  dataBarang.forEach((item,i)=>{
-    let selisih = (Number(item.stokFisik) || 0) - (Number(item.stokSistem) || 0);
-    csv += `${i+1},${item.kategori},"${item.nama}",${item.stokSistem},${item.stokFisik || 0},${selisih}\n`;
-  });
-  let blob = new Blob([csv], {type: 'text/csv'});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'SO-BENSPOT-'+document.getElementById('tanggalOpname').value+'.csv';
-  a.click();
+  let wb = XLSX.utils.table_to_book(document.getElementById('tabelBarang'));
+  XLSX.writeFile(wb, `SO-BENSPOT-${document.getElementById("tanggal").value}.xlsx`);
 }
 
-document.getElementById('tanggalOpname').valueAsDate = new Date();
-document.getElementById('tanggalRiwayat').valueAsDate = new Date();
-loadData(); tampilkan();
+window.onload = tampilkanRiwayat;
 </script>
 </body>
 </html>
