@@ -6,40 +6,46 @@
 <title>Stock Opname Benspot</title>
 <style>
   body{font-family:Arial; padding:10px; background:#f5f5f5}
-  .btn{padding:10px 15px; border:none; border-radius:8px; cursor:pointer; margin:5px}
+  .container{max-width:1000px; margin:auto; background:white; padding:20px; border-radius:10px}
+  .btn{padding:10px 15px; border:none; border-radius:8px; cursor:pointer; margin:5px; font-weight:bold}
   .btn-hijau{background:#22c55e; color:white}
   .btn-biru{background:#3b82f6; color:white}
-  table{width:100%; border-collapse:collapse; background:white}
+  table{width:100%; border-collapse:collapse; background:white; margin-top:15px}
   th,td{border:1px solid #ddd; padding:8px; text-align:center}
-  th{background:#eee}
-  #listRiwayat button{width:100%; text-align:left; padding:8px; margin:3px 0; background:#fff; border:1px solid #ccc; border-radius:5px}
+  th{background:#2c3e50; color:white}
+  input{width:80px; text-align:center}
+  #listRiwayat button{width:100%; text-align:left; padding:10px; margin:3px 0; background:#ecf0f1; border:1px solid #bdc3c7; border-radius:5px; cursor:pointer}
 </style>
 </head>
 <body>
+<div class="container">
+<h2>📦 STOCK OPNAME BENSPOT</h2>
 
-<h2>Stock Opname Benspot</h2>
-<button class="btn btn-hijau" onclick="loadTemplate()">Load Template Benspot</button>
-<input type="date" id="tanggal">
-<button class="btn btn-biru" onclick="simpanOpname()">Simpan Opname</button>
-<button class="btn btn-biru" onclick="exportExcel()">Export Excel</button>
+<input type="date" id="tanggal" style="padding:10px; width:100%; margin-bottom:10px;">
+<button class="btn btn-hijau" onclick="loadTemplate()">📥 Load Template Benspot 57 Item</button>
+<button class="btn btn-biru" onclick="simpanOpname()">💾 Simpan Opname</button>
+<button class="btn btn-biru" onclick="exportExcel()">📊 Export Excel</button>
 
 <table id="tabelBarang">
 <thead>
-<tr><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th></tr>
+<tr><th>No</th><th>Kategori</th><th>Nama Barang</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th></tr>
 </thead>
 <tbody></tbody>
 </table>
 
-<h3>Riwayat Opname</h3>
+<h3>📜 Riwayat Opname</h3>
 <div id="listRiwayat"></div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+// === OM ISI 57 ITEM BENSPOT DI SINI YA ===
 const templateBenspot = [
-  {kat:"RPC", nama:"RPC Monin Strawberry", sistem:0, fisik:0},
-  {kat:"RPC", nama:"RPC Monin Mango", sistem:0, fisik:0},
-  // ... LANJUTIN SAMPAI 57 ITEM OM ...
-  {kat:"RAW", nama:"RAW Choco Hazelnut", sistem:0, fisik:0}
+  {no:1, kat:"RPC", nama:"RPC Monin Strawberry", sistem:0},
+  {no:2, kat:"RPC", nama:"RPC Monin Mango", sistem:0},
+  {no:3, kat:"RPC", nama:"RPC Monin Vanilla", sistem:0},
+  // LANJUTIN SAMPAI 57 OM... CONTOH:
+  {no:57, kat:"RAW", nama:"RAW Choco Hazelnut", sistem:0}
 ];
 
 function loadTemplate(){
@@ -47,13 +53,20 @@ function loadTemplate(){
   tbody.innerHTML = "";
   templateBenspot.forEach((item, i)=>{
     tbody.innerHTML += `<tr>
+      <td>${item.no}</td>
       <td>${item.kat}</td>
       <td>${item.nama}</td>
-      <td><input type="number" value="${item.sistem}" id="sistem${i}"></td>
-      <td><input type="number" value="${item.fisik}" id="fisik${i}"></td>
+      <td><input type="number" value="${item.sistem}" id="sistem${i}" oninput="hitung(${i})"></td>
+      <td><input type="number" value="0" id="fisik${i}" oninput="hitung(${i})"></td>
       <td id="selisih${i}">0</td>
     </tr>`;
   });
+}
+
+function hitung(i){
+  let sistem = parseInt(document.getElementById("sistem"+i).value) || 0;
+  let fisik = parseInt(document.getElementById("fisik"+i).value) || 0;
+  document.getElementById("selisih"+i).innerText = fisik - sistem;
 }
 
 function simpanOpname(){
@@ -65,35 +78,25 @@ function simpanOpname(){
     let sistem = parseInt(document.getElementById("sistem"+i).value) || 0;
     let fisik = parseInt(document.getElementById("fisik"+i).value) || 0;
     let selisih = fisik - sistem;
-    document.getElementById("selisih"+i).innerText = selisih;
     data.push({...item, sistem, fisik, selisih});
   });
 
-  simpanKeRiwayat(tanggal, data);
+  let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
+  riwayat = riwayat.filter(item => item.tanggal !== tanggal);
+  riwayat.push({ tanggal, data, waktu: new Date().toLocaleString() });
+  riwayat.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  localStorage.setItem('riwayatBenspot', JSON.stringify(riwayat));
+
   tampilkanRiwayat();
   alert("Data tanggal "+tanggal+" berhasil disimpan!");
 }
 
-function simpanKeRiwayat(tanggal, data) {
-  let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
-  riwayat = riwayat.filter(item => item.tanggal !== tanggal);
-  riwayat.push({ tanggal: tanggal, data: data, waktu: new Date().toLocaleString() });
-  riwayat.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
-  localStorage.setItem('riwayatBenspot', JSON.stringify(riwayat));
-}
-
 function tampilkanRiwayat() {
   let riwayat = JSON.parse(localStorage.getItem('riwayatBenspot')) || [];
-  let html = '';
-  if(riwayat.length === 0) {
-    html = '<p>Belum ada riwayat</p>';
-  } else {
-    riwayat.forEach(item => {
-      html += `<button onclick="loadRiwayat('${item.tanggal}')">
-                📅 ${item.tanggal} - ${item.waktu}
-               </button>`;
-    });
-  }
+  let html = riwayat.length === 0 ? '<p>Belum ada riwayat</p>' : '';
+  riwayat.forEach(item => {
+    html += `<button onclick="loadRiwayat('${item.tanggal}')">📅 ${item.tanggal} - ${item.waktu}</button>`;
+  });
   document.getElementById('listRiwayat').innerHTML = html;
 }
 
@@ -106,10 +109,11 @@ function loadRiwayat(tanggal){
   tbody.innerHTML = "";
   item.data.forEach((d, i)=>{
     tbody.innerHTML += `<tr>
+      <td>${d.no}</td>
       <td>${d.kat}</td>
       <td>${d.nama}</td>
-      <td><input type="number" value="${d.sistem}" id="sistem${i}"></td>
-      <td><input type="number" value="${d.fisik}" id="fisik${i}"></td>
+      <td><input type="number" value="${d.sistem}" id="sistem${i}" oninput="hitung(${i})"></td>
+      <td><input type="number" value="${d.fisik}" id="fisik${i}" oninput="hitung(${i})"></td>
       <td id="selisih${i}">${d.selisih}</td>
     </tr>`;
   });
